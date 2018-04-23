@@ -30,7 +30,7 @@ svg.append("text")
 // note: the call is done asynchronous.
 // That is why you have to load the data inside of a
 // callback function.
-d3.csv("./data/bundesligaDaten3.csv", function(error, data) {
+d3.csv("./data/bundesligaDaten.csv", function(error, data) {
     //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
     //const successDomain = d3.extent(data, d => Number(d.Platzierung));
 
