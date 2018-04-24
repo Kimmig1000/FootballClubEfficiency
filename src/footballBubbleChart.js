@@ -92,8 +92,8 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
                 .style("opacity", .9)
                 .style("visibility","visible");
             tooltip	.html(`${d["Verein"]} <br/>`
-                + `Gesamtmarktwert: ${d.Gesamtmarktwert}<br/>`
-                + `Platzierung: ${d.Platzierung}<br/>`
+                + `Total market value: ${d.Gesamtmarktwert}<br/>`
+                + `League Position: ${d.Platzierung}<br/>`
             )
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
@@ -117,7 +117,7 @@ g.append("text")
     .attr("dy", "1em")
     .attr("font-family", "sans-serif")
     .style("text-anchor", "middle")
-    .text("GesamtMarktwert in Mio €");
+    .text("Total market value in Mio €");
 
 // text label for the y axis
 g.append("text")
@@ -127,4 +127,4 @@ g.append("text")
     .attr("dy", "1em")
     .attr("font-family", "sans-serif")
     .style("text-anchor", "middle")
-    .text("Platzierung");
+    .text("League Position");
