@@ -45,13 +45,13 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 
 
 
-        //.nice(5);
+    //.nice(5);
 
     const yScale = d3.scaleLinear()
         .range([height,0])
         .domain(successDomain);
-        //.ticks(18);
-        //.nice(1);
+    //.ticks(18);
+    //.nice(1);
 
 
 
@@ -74,23 +74,8 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 
 
     // Create tooltip
-    var tooltip = g.append("g2")
-        .attr("class", "tooltip")
-        //.style("display","none");
-
-    tooltip.append("rect")
-        .attr("width", 60)
-        .attr("height", 20)
-        .attr("fill", "white")
-        .style("opacity", 0.5);
-
-    tooltip.append("text")
-        .attr("x", 30)
-        .attr("dy", "1.2em")
-        .style("text-anchor", "middle")
-        .attr("font-size", "12px")
-        .attr("font-weight", "bold");
-
+    var tooltip = d3.select("body").append("tooltip")
+        .attr("class", "tooltip");
 
     var team_images = g.selectAll("image")
         .data(data)
@@ -98,26 +83,25 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
         .attr("class", "bar")
         .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
         .attr("x", d => xScale(d.Gesamtmarktwert))
-        .attr("y", d => yScale(d.Platzierung))
-        .style("width","25")
+.attr("y", d => yScale(d.Platzierung))
+.style("width","25")
         .style("height","25")
         .on("mouseover", function(d) {
-            tooltip.select("text").text(`${d["Verein"]} <br/>`
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9)
+                .style("visibility","visible");
+            tooltip	.html(`${d["Verein"]} <br/>`
                 + `Gesamtmarktwert: ${d.Gesamtmarktwert}<br/>`
                 + `Platzierung: ${d.Platzierung}<br/>`
-                 )
-            var xPosition = d3.mouse(this)[0];
-            var yPosition = d3.mouse(this)[1];
-
-            tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")")
-            tooltip.attr("visibility", "visible")
-            //.style("display", "block");
-            //.style("left", (d3.event.pageX) + "px")
-            //.style("top", (d3.event.pageY - 28) + "px")
-
-    })
+            )
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        })
         .on("mouseout", function(d) {
-            tooltip.style("display", "none")
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
         });
 
 
