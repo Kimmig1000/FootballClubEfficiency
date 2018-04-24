@@ -64,7 +64,7 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
     g.append("g")  // create a group and add axis
         .call(yAxis);
 
-
+    /*
     // add circle
     var data_points = g.selectAll("circle")  // this is just an empty placeholder
         .data(data)
@@ -73,7 +73,27 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
         .attr("cx", d => xScale(d.Gesamtmarktwert))
         .attr("cy", d => yScale(d.Platzierung))
         .attr("r", 4)
-        .style("fill", "black");
+        .attr("xlink:href","./images/fcBayern.png")
+        .style("width","15")
+        .style("height","15");
+
+    */
+    style="position:absolute; left: 400; top: 100; width: 200;      height: 200;"
+
+    var team_images = g.selectAll("image")
+        .data(data)
+        .enter().append("image")
+        .attr("class", "bar")
+        .attr("xlink:href","./images/fcBayern.png")
+        //.attr("cx", d => xScale(d.Gesamtmarktwert))
+        //.attr("cy", d => yScale(d.Platzierung))
+       // .attr("width", 15)
+        //.attr("height", 15)
+        .style("left", d => xScale(d.Gesamtmarktwert))
+        .style("top",d => yScale(d.Platzierung))
+        .style("position","absolute")
+        .style("width","15")
+        .style("height","15");
 
 
     // Create tooltip
