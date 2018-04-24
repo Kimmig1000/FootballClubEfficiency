@@ -34,20 +34,27 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
     //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
     //const successDomain = d3.extent(data, d => Number(d.Platzierung));
 
-    const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),d3.min(data, d => Number(d.Gesamtmarktwert))];
-    const successDomain = [d3.max(data, d => Number(d.Platzierung)),d3.min(data, d => Number(d.Platzierung))];
+    const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),0];
+    const successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1,d3.min(data, d => Number(d.Platzierung))];
 
     console.log(data);
     // create scales for x and y direction
     const xScale = d3.scaleLinear()
         .range([0,width])
         .domain(valueDomain);
+
+
+
         //.nice(5);
 
     const yScale = d3.scaleLinear()
         .range([height,0])
         .domain(successDomain);
+        //.ticks(18);
         //.nice(1);
+
+
+
 
     console.log(valueDomain);
     console.log(successDomain);
@@ -59,63 +66,65 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
     g.append("g")  // create a group and add axis
         .attr("transform", "translate(0," + height + ")").call(xAxis);
 
+
     // create yAxis
     const yAxis = d3.axisLeft(yScale);
     g.append("g")  // create a group and add axis
-        .call(yAxis);
-
-    /*
-    // add circle
-    var data_points = g.selectAll("circle")  // this is just an empty placeholder
-        .data(data)
-        .enter().append("circle")
-        .attr("class", "bar")
-        .attr("cx", d => xScale(d.Gesamtmarktwert))
-        .attr("cy", d => yScale(d.Platzierung))
-        .attr("r", 4)
-        .attr("xlink:href","./images/fcBayern.png")
-        .style("width","15")
-        .style("height","15");
-
-    */
-    style="position:absolute; left: 400; top: 100; width: 200;      height: 200;"
-
-    var team_images = g.selectAll("image")
-        .data(data)
-        .enter().append("image")
-        .attr("class", "bar")
-        .attr("xlink:href","./images/fcBayern.png")
-        //.attr("cx", d => xScale(d.Gesamtmarktwert))
-        //.attr("cy", d => yScale(d.Platzierung))
-       // .attr("width", 15)
-        //.attr("height", 15)
-        .style("left", d => xScale(d.Gesamtmarktwert))
-        .style("top",d => yScale(d.Platzierung))
-        .style("position","absolute")
-        .style("width","15")
-        .style("height","15");
+        .call(yAxis)
 
 
     // Create tooltip
-    var tooltip = d3.select("body").append("div").classed("tooltip", true);
+    var tooltip = g.append("g2")
+        .attr("class", "tooltip")
+        //.style("display","none");
 
-    data_points.on("mouseover", function(d, i) {
-        tooltip
-            .html(`${d["Verein"]} <br/>`
+    tooltip.append("rect")
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .style("opacity", 0.5);
+
+    tooltip.append("text")
+        .attr("x", 30)
+        .attr("dy", "1.2em")
+        .style("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .attr("font-weight", "bold");
+
+
+    var team_images = g.selectAll("image")
+        .data(data)
+        .enter().append("g:image")
+        .attr("class", "bar")
+        .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
+        .attr("x", d => xScale(d.Gesamtmarktwert))
+        .attr("y", d => yScale(d.Platzierung))
+        .style("width","25")
+        .style("height","25")
+        .on("mouseover", function(d) {
+            tooltip.select("text").text(`${d["Verein"]} <br/>`
                 + `Gesamtmarktwert: ${d.Gesamtmarktwert}<br/>`
                 + `Platzierung: ${d.Platzierung}<br/>`
                  )
-            .style("visibility", "visible")
-            .style("left", (d3.event.pageX) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");
+            var xPosition = d3.mouse(this)[0];
+            var yPosition = d3.mouse(this)[1];
+
+            tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")")
+            tooltip.attr("visibility", "visible")
+            //.style("display", "block");
+            //.style("left", (d3.event.pageX) + "px")
+            //.style("top", (d3.event.pageY - 28) + "px")
+
     })
-        .on("mouseout", function(d,i) {
-            tooltip.style("visibility", "hidden")
+        .on("mouseout", function(d) {
+            tooltip.style("display", "none")
         });
 
 
 
 });
+
+
 
 // text label for the x axis
 g.append("text")
