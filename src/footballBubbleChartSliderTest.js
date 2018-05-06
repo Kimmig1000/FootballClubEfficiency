@@ -88,8 +88,8 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
         .attr("class", "bar")
         .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
         .attr("x", d => xScale(d.Gesamtmarktwert))
-.attr("y", d => yScale(d.Platzierung))
-.style("width","25")
+        .attr("y", d => yScale(d.Platzierung))
+        .style("width","25")
         .style("height","25")
         .on("mouseover", function(d) {
             tooltip.transition()
@@ -119,7 +119,37 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
         .tickFormat(d => d + "")
         .default(2015)
         .on('onchange', val => {
-            d3.select("p#yearValue").text(val);
+            d3.select("p#yearValue").text(val)
+            currentYear = val
+            g.selectAll("image")
+                .data(data)
+                .enter()
+                .append("g:image")
+                .filter(function(d) {return d.Jahr == val;
+                })
+                .attr("class", "bar")
+                .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
+                .attr("x", d => xScale(d.Gesamtmarktwert))
+                .attr("y", d => yScale(d.Platzierung))
+                .style("width","25")
+                .style("height","25")
+                .on("mouseover", function(d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9)
+                        .style("visibility","visible");
+                    tooltip	.html(`${d["Verein"]} <br/>`
+                        + `Total market value: ${d.Gesamtmarktwert}<br/>`
+                        + `League Position: ${d.Platzierung}<br/>`
+                    )
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
 
         });
 
