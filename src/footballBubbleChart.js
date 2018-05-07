@@ -31,9 +31,6 @@ svg.append("text")
 // That is why you have to load the data inside of a
 // callback function.
 d3.csv("./data/bundesligaDaten.csv", function(error, data) {
-    //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
-    //const successDomain = d3.extent(data, d => Number(d.Platzierung));
-
 
     const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),0];
     const successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1,d3.min(data, d => Number(d.Platzierung))];
@@ -138,7 +135,7 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 
 });
 
-
+// https://stackoverflow.com/questions/45504235/filter-csv-data-from-a-slider-in-a-scatterplot-d3js
 
 
 // text label for the x axis

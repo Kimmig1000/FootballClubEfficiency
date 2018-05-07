@@ -1,5 +1,12 @@
+var dataset;
+var xScale;
+var yScale;
+
+
 // create svg canvas
 const canvHeight = 600, canvWidth = 800;
+
+
 const svg = d3.select("body").append("svg")
     .attr("width", canvWidth)
     .attr("height", canvHeight)
@@ -25,66 +32,72 @@ svg.append("text")
     .style("text-anchor", "left")
     .text("Football - Which team is really efficient?");
 
+const slider = sliderFactory();
+let slideHolder = d3.select('body')
+    .call(slider.ticks(1).scale(true).value(2015).range([Number("2015"),Number("2017")]).dragHandler(function(d) {getValue(d); update(slider.value())}));
 
-// load the data from the cleaned csv file.
-// note: the call is done asynchronous.
-// That is why you have to load the data inside of a
-// callback function.
+function getValue(d) {
+    var parseNum = d3.format(".0f");
+    d3.select("#slideValue").text("Slider value "+parseNum(d.value())) };
+
+
+const body1 = d3.select("body");
+
+body1.append("slideHolder");
+
+
 d3.csv("./data/bundesligaDaten.csv", function(error, data) {
-    //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
-    //const successDomain = d3.extent(data, d => Number(d.Platzierung));
-
-
     const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),0];
     const successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1,d3.min(data, d => Number(d.Platzierung))];
 
-
-    // create scales for x and y direction
-    const xScale = d3.scaleLinear()
+// create scales for x and y direction
+    xScale = d3.scaleLinear()
         .range([0,width])
         .domain(valueDomain);
 
-
-
-
-    //.nice(5);
-
-    const yScale = d3.scaleLinear()
+    yScale = d3.scaleLinear()
         .range([height,0])
         .domain(successDomain);
-    //.ticks(18);
-    //.nice(1);
 
-
-
-    var currentYear = 2015;
-
-    //console.log(successDomain);
-
-    //const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-    // create xAxis
+// create xAxis
     const xAxis = d3.axisBottom(xScale);
     g.append("g")  // create a group and add axis
         .attr("transform", "translate(0," + height + ")").call(xAxis);
 
 
-    // create yAxis
+// create yAxis
     const yAxis = d3.axisLeft(yScale);
     g.append("g")  // create a group and add axis
         .call(yAxis)
+    dataset = data;
+    update(2015)
+})
 
 
-    // Create tooltip
-    var tooltip = d3.select("body").append("tooltip")
-        .attr("class", "tooltip");
+
+
+// Create tooltip
+const tooltip = d3.select("body").append("tooltip")
+    .attr("class", "tooltip");
+
+//.ticks(18);
+//.nice(1);
+// load the data from the cleaned csv file.
+// note: the call is done asynchronous.
+// That is why you have to load the data inside of a
+// callback function.
+function drawPlot(data) {
+    //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
+    //const successDomain = d3.extent(data, d => Number(d.Platzierung));
+
+    d3.selectAll("image").remove()
+
 
     var team_images = g.selectAll("image")
         .data(data)
-        .enter()
+
+        team_images.enter()
         .append("g:image")
-        .filter(function(d) {return d.Jahr == currentYear;
-        })
         .attr("class", "bar")
         .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
         .attr("x", d => xScale(d.Gesamtmarktwert))
@@ -110,65 +123,23 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
         });
 
 
-    var slider = d3.sliderHorizontal()
-        .min(Number(2015))
-        .max(Number(2017))
-        .step(1)
-        .ticks(2)
-        .width(width)
-        .tickFormat(d => d + "")
-        .default(2015)
-        .on('onchange', val => {
-            d3.select("p#yearValue").text(val)
-            currentYear = val
-            g.selectAll("image")
-                .data(data)
-                .enter()
-                .append("g:image")
-                .filter(function(d) {return d.Jahr == val;
-                })
-                .attr("class", "bar")
-                .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
-                .attr("x", d => xScale(d.Gesamtmarktwert))
-                .attr("y", d => yScale(d.Platzierung))
-                .style("width","25")
-                .style("height","25")
-                .on("mouseover", function(d) {
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9)
-                        .style("visibility","visible");
-                    tooltip	.html(`${d["Verein"]} <br/>`
-                        + `Total market value: ${d.Gesamtmarktwert}<br/>`
-                        + `League Position: ${d.Platzierung}<br/>`
-                    )
-                        .style("left", (d3.event.pageX) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(d) {
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
-
-        });
-
-    var g2 = d3.select("div#slider").append("svg")
-        .attr("width", 1000)
-        .attr("height", 100)
-        .append("g")
-        .attr("transform", "translate(30,30)");
-
-    g2.call(slider);
-
-    d3.select("p#yearValue").text(slider.value());
-    d3.select("a#yearValue2").on("click", () => slider.value(2015));
 
 
 
-});
+
+};
+
+function update(h) {
+    // update position and text of label according to slider scale
 
 
+    // filter data set and redraw plot
+    var newData = dataset.filter(function(d) {
+        return d.Jahr == h;
+    })
+
+    drawPlot(newData);
+}
 
 
 // text label for the x axis
