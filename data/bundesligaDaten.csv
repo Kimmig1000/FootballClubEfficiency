@@ -25,7 +25,7 @@ Platzierung,Verein,Kader,Durchschnittsalter,Gesamtmarktwert,Durchschnittsmarktwe
 4,Borussia Mönchengladbach,29,24.4,139.55,4.81,160.6,2016
 15,TSG 1899 Hoffenheim,31,23.8,111.4,3.59,128,2016
 16,Eintracht Frankfurt,35,23.9,87.5,2.5,104,2016
-17,VfB Stuttgart,34,23.8,82.6,2.43,125.5,2016
+17,Stuttgart,34,23.8,82.6,2.43,125.5,2016
 10,Hamburger SV,35,24.8,74.08,2.12,123,2016
 18,Hannover 96,39,23.5,73.58,1.89,74.6,2016
 7,Hertha BSC,34,24.3,72.88,2.14,95.2,2016
@@ -43,7 +43,7 @@ Platzierung,Verein,Kader,Durchschnittsalter,Gesamtmarktwert,Durchschnittsmarktwe
 16,Hamburger SV,38,24.2,114.95,3.03,128.1,2015
 3,Borussia Mönchengladbach,27,24.9,107.33,3.98,130.6,2015
 8,TSG 1899 Hoffenheim,30,23.4,100.03,3.33,71.5,2015
-14,VfB Stuttgart,30,23.7,97.9,3.26,119,2015
+14,Stuttgart,30,23.7,97.9,3.26,119,2015
 13,Hannover 96,35,24.6,78.05,2.23,68.13,2015
 11,1.FSV Mainz 05,36,23.9,76.9,2.14,75.3,2015
 15,Hertha BSC,30,25.3,76.48,2.55,88.5,2015
@@ -53,3 +53,39 @@ Platzierung,Verein,Kader,Durchschnittsalter,Gesamtmarktwert,Durchschnittsmarktwe
 12,1.FC Köln,27,24.4,43.33,1.6,89.7,2015
 5,FC Augsburg,35,24.6,42.43,1.21,59.38,2015
 18,SC Paderborn,28,25.2,22.45,0.802,29.83,2015
+1,FC Bayern München,30,24.1,483.98,16.13,,2014
+2,Borussia Dortmund,31,23.7,285.15,9.2,260.7,2014
+3,FC Schalke 04,33,24.1,186.95,5.67,,2014
+4,Bayer 04 Leverkusen,33,23.5,141.85,4.3,,2014
+5,VfL Wolfsburg,35,24.2,134.73,3.85,,2014
+16,Hamburger SV,33,24.1,111.7,3.38,121.1,2014
+15,Stuttgart,32,24.4,100.98,3.16,,2014
+6,Borussia Mönchengladbach,28,24,94.78,3.38,,2014
+13,Eintracht Frankfurt,33,23.7,84.93,2.57,99,2014
+10,Hannover 96,35,24.2,83.55,2.39,,2014
+9,TSG 1899 Hoffenheim,43,22.7,77.08,1.79,,2014
+12,SV Werder Bremen,38,22.8,74.45,1.96,,2014
+14,SC Freiburg,34,22.9,66.63,1.96,70,2014
+17,1.FC Nürnberg,32,23.4,48.88,1.53,,2014
+11,Hertha BSC,32,25,45.95,1.44,104.3,2014
+7,1.FSV Mainz 05,31,25.7,45.4,1.46,,2014
+8,FC Augsburg,34,24.1,43.5,1.28,,2014
+18,Eintracht Braunschweig,32,25.2,29.6,0.925,,2014
+1,FC Bayern München,28,24.5,407.30,14.55,,2013
+2,Borussia Dortmund,29,23.3,227.68,7.85,,2013
+4,FC Schalke 04,28,24.3,171,6.11,,2013
+11,VfL Wolfsburg,34,25,120.33,3.54,,2013
+3,Bayer 04 Leverkusen,32,22.8,115.9,3.62,,2013
+7,Hamburger SV,28,24.4,110.6,3.95,116.7,2013
+12,Stuttgart,32,24.6,102.03,3.19,,2013
+9,Hannover 96,32,24.9,88,2.75,,2013
+16,TSG 1899 Hoffenheim,42,22.8,85.03,2.02,,2013
+8,Borussia Mönchengladbach,27,23.7,81,3,,2013
+14,SV Werder Bremen,32,22.5,79.2,2.48,,2013
+6,Eintracht Frankfurt,31,24.4,51.2,1.65,58.76,2013
+13,1.FSV Mainz 05,31,25.5,50.95,1.64,,2013
+15,FC Augsburg,31,25.4,47,1.52,,2013
+5,SC Freiburg,31,23.1,45.45,1.47,50,2013
+10,1.FC Nürnberg,30,23.4,42.65,1.42,,2013
+18,SpVgg Greuther Fürth,37,23.8,34.08,0.921,,2013
+17,Fortuna Düsseldorf,34,24.9,31.75,0.934,,2013

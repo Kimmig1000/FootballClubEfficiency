@@ -34,16 +34,20 @@ svg.append("text")
 
 const slider = sliderFactory();
 let slideHolder = d3.select('body')
-    .call(slider.ticks(1).scale(true).value(2015).range([Number("2015"),Number("2017")]).dragHandler(function(d) {getValue(d); update(slider.value())}));
+    .call(slider.ticks(1).scale(true).value(2015).range([2013,2017]).dragHandler(function(d) {getValue(d); update(slider.value())}))
+
 
 function getValue(d) {
-    var parseNum = d3.format(".0f");
+    var parseNum = d3.format(".0g");
     d3.select("#slideValue").text("Slider value "+parseNum(d.value())) };
 
 
-const body1 = d3.select("body");
+const body1 = d3.select("body")
+    .attr("x",20)
+    .attr("y",canvHeight + 20);
 
-body1.append("slideHolder");
+body1.append("slideHolder")
+
 
 
 d3.csv("./data/bundesligaDaten.csv", function(error, data) {
