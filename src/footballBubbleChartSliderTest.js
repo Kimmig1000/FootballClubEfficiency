@@ -66,15 +66,41 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 // create xAxis
     const xAxis = d3.axisBottom(xScale);
     g.append("g")  // create a group and add axis
-        .attr("transform", "translate(0," + height + ")").call(xAxis);
+        .attr("transform", "translate(0," + height + ")")
+        .attr("id","xAxis")
+        .call(xAxis);
 
 
 // create yAxis
     const yAxis = d3.axisLeft(yScale);
-    g.append("g")  // create a group and add axis
+    g.append("g")
+        .attr("id","yAxis")// create a group and add axis
         .call(yAxis)
+
     dataset = data;
     update(2015)
+
+    // text label for the x axis
+    g.append("text")
+        .attr("y", height + margin.bottom / 2)
+        .attr("x", width / 2)
+        .attr("dy", "1em")
+        .attr("font-family", "sans-serif")
+        .attr("id","xAxisText")
+        .style("text-anchor", "middle")
+        .text("Total market value in Mio €");
+
+// text label for the y axis
+    g.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .attr("font-family", "sans-serif")
+        .attr("id","yAxisText")
+        .style("text-anchor", "middle")
+        .text("League Position");
+
 })
 
 
@@ -90,7 +116,7 @@ const tooltip = d3.select("body").append("tooltip")
 // note: the call is done asynchronous.
 // That is why you have to load the data inside of a
 // callback function.
-function drawPlot(data) {
+function drawGesamtWertVersusPlatzierung(data) {
     //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
     //const successDomain = d3.extent(data, d => Number(d.Platzierung));
 
@@ -142,25 +168,59 @@ function update(h) {
         return d.Jahr == h;
     })
 
-    drawPlot(newData);
+    drawGesamtWertVersusPlatzierung(newData);
 }
 
 
-// text label for the x axis
-g.append("text")
-    .attr("y", height + margin.bottom / 2)
-    .attr("x", width / 2)
-    .attr("dy", "1em")
-    .attr("font-family", "sans-serif")
-    .style("text-anchor", "middle")
-    .text("Total market value in Mio €");
+function createAxisPlatzierungVersusKarten(){
+
+
+
+    d3.csv("./data/bundesligaDaten.csv", function(error, data) {
+        const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),0];
+        const successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1,d3.min(data, d => Number(d.Platzierung))];
+
+// create scales for x and y direction
+        xScale = d3.scaleLinear()
+            .range([0,width])
+            .domain(valueDomain);
+
+        yScale = d3.scaleLinear()
+            .range([height,0])
+            .domain(successDomain);
+
+// create xAxis
+        const xAxis = d3.axisBottom(xScale);
+        g.append("g")  // create a group and add axis
+            .attr("transform", "translate(0," + height + ")").call(xAxis);
+
+
+// create yAxis
+        const yAxis = d3.axisLeft(yScale);
+        g.append("g")  // create a group and add axis
+            .call(yAxis)
+        dataset = data;
+        update(2015)
+
+        // text label for the x axis
+        g.append("text")
+            .attr("y", height + margin.bottom / 2)
+            .attr("x", width / 2)
+            .attr("dy", "1em")
+            .attr("font-family", "sans-serif")
+            .style("text-anchor", "middle")
+            .text("Total market value in Mio €");
 
 // text label for the y axis
-g.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left)
-    .attr("x",0 - (height / 2))
-    .attr("dy", "1em")
-    .attr("font-family", "sans-serif")
-    .style("text-anchor", "middle")
-    .text("League Position");
+        g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .attr("font-family", "sans-serif")
+            .style("text-anchor", "middle")
+            .text("League Position");
+
+    })
+
+}
