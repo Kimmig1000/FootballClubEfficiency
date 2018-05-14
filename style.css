@@ -1,3 +1,6 @@
+.body{
+    float:left;
+}
 
 tooltip.tooltip {
     position: absolute;
