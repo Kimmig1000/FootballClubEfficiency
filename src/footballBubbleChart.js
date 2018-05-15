@@ -31,16 +31,17 @@ svg.append("text")
 // That is why you have to load the data inside of a
 // callback function.
 d3.csv("./data/bundesligaDaten.csv", function(error, data) {
+    //const valueDomain = d3.extent(data, d => Number(d.Gesamtmarktwert));
+    //const successDomain = d3.extent(data, d => Number(d.Platzierung));
 
     const valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)),0];
     const successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1,d3.min(data, d => Number(d.Platzierung))];
 
-
+    console.log(data);
     // create scales for x and y direction
     const xScale = d3.scaleLinear()
         .range([0,width])
         .domain(valueDomain);
-
 
 
 
@@ -54,9 +55,9 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 
 
 
-    var currentYear = 2015;
 
-    //console.log(successDomain);
+    console.log(valueDomain);
+    console.log(successDomain);
 
     //const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -78,10 +79,7 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
 
     var team_images = g.selectAll("image")
         .data(data)
-        .enter()
-        .append("g:image")
-        .filter(function(d) {return d.Jahr == currentYear;
-        })
+        .enter().append("g:image")
         .attr("class", "bar")
         .attr("xlink:href",function(d){return "./images/" +d.Verein +".gif"})
         .attr("x", d => xScale(d.Gesamtmarktwert))
@@ -96,6 +94,7 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
             tooltip	.html(`${d["Verein"]} <br/>`
                 + `Total market value: ${d.Gesamtmarktwert}<br/>`
                 + `League Position: ${d.Platzierung}<br/>`
+                + `Number of Players: ${d.Kader}<br/>`
             )
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
@@ -105,38 +104,12 @@ d3.csv("./data/bundesligaDaten.csv", function(error, data) {
                 .duration(500)
                 .style("opacity", 0);
         });
-
-
-    var slider = d3.sliderHorizontal()
-        .min(Number(2015))
-        .max(Number(2017))
-        .step(1)
-        .ticks(2)
-        .width(width)
-        .tickFormat(d => d + "")
-        .default(2015)
-        .on('onchange', val => {
-            d3.select("p#yearValue").text(val);
-
-        });
-
-    var g2 = d3.select("div#slider").append("svg")
-        .attr("width", 1000)
-        .attr("height", 100)
-        .append("g")
-        .attr("transform", "translate(30,30)");
-
-    g2.call(slider);
-
-    d3.select("p#yearValue").text(slider.value());
-    d3.select("a#yearValue2").on("click", () => slider.value(2015));
-
-
-
 });
 
-// https://stackoverflow.com/questions/45504235/filter-csv-data-from-a-slider-in-a-scatterplot-d3js
 
+function scaleImage(amount){
+    return (amount-30)*5;
+}
 
 // text label for the x axis
 g.append("text")

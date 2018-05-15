@@ -4,6 +4,7 @@ var yScale;
 var xAxis;
 var yAxis;
 var currentYear;
+var counter = 0;
 
 
 // create svg canvas
@@ -12,11 +13,11 @@ const canvHeight = 600, canvWidth = 800;
 
 const svg = d3.select("body").append("svg")
     .attr("width", canvWidth)
-    .attr("height", canvHeight)
-    .style("border", "1px solid");
+    .attr("height", canvHeight);
+    // .style("border", "1px solid");
 
 // calc the width and height depending on margins.
-const margin = {top: 50, right: 80, bottom: 50, left: 60};
+const margin = {top: 50, right: 80, bottom: 50, left: 80};
 const width = canvWidth - margin.left - margin.right;
 const height = canvHeight - margin.top - margin.bottom;
 
@@ -24,6 +25,42 @@ const height = canvHeight - margin.top - margin.bottom;
 const g = svg.append("g")
     .attr("id", "chart-area")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+var select = d3.select("#yProperty")
+    .attr("y", height + margin.bottom / 2)
+    .attr("x", width / 2)
+    .attr("dy", "1em")
+    .attr('class','select')
+    .on('change',onchange)
+console.log(select);
+
+var data = ["Budget", "anzl. Mitglieder", "anzl. gelbe Karten"];
+var options = select
+    .selectAll('option')
+    .data(data).enter()
+    .append('option')
+    .text(function (d) { return d; });
+
+function onchange() {
+    selectValue = d3.select('select').property('value')
+    d3.select('body')
+        .append('p')
+        .text(selectValue + ' is the last selected option.')
+};
+
+
+// text label for the y axis
+g.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 20 - margin.left)
+    .attr("x", 0 - (height / 2))
+    .attr("dy", "1em")
+    .attr("font-family", "sans-serif")
+    .attr("id", "yAxisText")
+    .style("text-anchor", "middle")
+    .text("League Position");
+
 
 // chart title
 svg.append("text")
@@ -50,115 +87,107 @@ const tooltip = d3.select("body").append("tooltip")
 
 
 // Initialize View and Data
+d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", function(error, allGamesData) {
+    d3.csv("./data/Bundesliga All Players 2007-2018 (statbunker.com).csv", function(error, allPlayersData) {
+        d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
 
-d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
-    var valueDomain = [d3.max(data, d => Number(d.Gesamtmarktwert)), 0];
-    var successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, d3.min(data, d => Number(d.Platzierung))];
+            console.log(allGamesData[0]);
 
-// create scales for x and y direction
-    xScale = d3.scaleLinear()
-        .range([0, width])
-        .domain(valueDomain);
+            var valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert))];
+            var successDomain = [d3.max(data, d => Number(d.Platzierung))+1, 1];
 
-    yScale = d3.scaleLinear()
-        .range([height, 0])
-        .domain(successDomain);
+            // create scales for x and y direction
+            xScale = d3.scaleLinear()
+                .range([0, width])
+                .domain(valueDomain);
 
-// create xAxis
-    xAxis = d3.axisBottom(xScale);
-    g.append("g")  // create a group and add axis
-        .attr("transform", "translate(0," + height + ")")
-        .attr("id", "xAxis")
-        .call(xAxis);
+            yScale = d3.scaleLinear()
+                .range([height, 0])
+                .domain(successDomain);
 
-
-// create yAxis
-    yAxis = d3.axisLeft(yScale);
-    g.append("g")
-        .attr("id", "yAxis")// create a group and add axis
-        .call(yAxis)
-
-    const slider = sliderFactory();
-    let slideHolder = d3.select('body')
-        .call(slider.ticks(1).scale(true).value(2015).range([2013, 2017]).dragHandler(function (d) {
-            getValue(d);
-            update(slider.value(), "Gesamtmarktwert")
-        }))
-
-    dataset = data;
-    update(2015, "Gesamtmarktwert")
-
-    // text label for the x axis
-    g.append("text")
-        .attr("y", height + margin.bottom / 2)
-        .attr("x", width / 2)
-        .attr("dy", "1em")
-        .attr("font-family", "sans-serif")
-        .attr("id", "xAxisText")
-        .style("text-anchor", "middle")
-        .text("Total market value in Mio €");
-
-// text label for the y axis
-    g.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (height / 2))
-        .attr("dy", "1em")
-        .attr("font-family", "sans-serif")
-        .attr("id", "yAxisText")
-        .style("text-anchor", "middle")
-        .text("League Position");
+            // create xAxis
+            xAxis = d3.axisBottom(xScale);
+            g.append("g")  // create a group and add axis
+                .attr("transform", "translate(0," + height + ")")
+                .attr("id", "xAxis")
+                .call(xAxis);
 
 
-    d3.selectAll(".radioB").on("click", function () {
-        if (this.value == "Gesamtmarktwert") {
-            console.log("Gesamtmarktwert selected")
+            // create yAxis
+            yAxis = d3.axisLeft(yScale);
+            g.append("g")
+                .attr("id", "yAxis")// create a group and add axis
+                .call(yAxis)
 
-            changeIt("Gesamtmarktwert")
-            // Determine how to size the slices.
-        } else if (this.value == "Durchschnittsalter") {
-            console.log("Durchschnittsalter selected")
+            const slider = sliderFactory();
+            let slideHolder = d3.select('body')
+                .call(slider.ticks(1).scale(true).value(2015).range([2013, 2017]).dragHandler(function (d) {
+                    getValue(d);
+                    update(slider.value(), "Gesamtmarktwert")
+                }))
 
-            changeIt("Durchschnittsalter")
-        }
-        else if (this.value == "Fouls") {
-            console.log("Fouls selected")
+            dataset = data;
+            update(2015, "Gesamtmarktwert")
 
-            changeIt("Fouls")
-        }
-        else if (this.value == "Umsatz") {
-            console.log("Umsatz selected")
+            d3.selectAll(".radioB").on("click", function () {
+                if (this.value == "Gesamtmarktwert") {
+                    console.log("Gesamtmarktwert selected")
 
-            changeIt("Umsatz")
-        }
+                    changeIt("Gesamtmarktwert")
+                    // Determine how to size the slices.
+                } else if (this.value == "Durchschnittsalter") {
+                    console.log("Durchschnittsalter selected")
 
+                    changeIt("Durchschnittsalter")
+                }
+                else if (this.value == "Fouls") {
+                    console.log("Fouls selected")
 
+                    changeIt("Fouls")
+                }
+                else if (this.value == "Umsatz") {
+                    console.log("Umsatz selected")
+
+                    changeIt("Umsatz")
+                }
+            });
+        });
     });
-})
+});
+
 
 
 // draws the images and is called by update(h, AxisValue)
 function drawImages(data, xAxisValue) {
 
 
-    d3.selectAll("image").remove()
+    // d3.selectAll("image").remove()
 
     var currentXValue = xAxisValue;
     console.log("currentXValue: " + currentXValue)
     var team_images = g.selectAll("image")
         .data(data)
 
-    team_images.enter()
-        .append("g:image")
-        .attr("class", "bar")
-        .attr("xlink:href", function (d) {
-            return "./images/" + d.Verein + ".gif"
-        })
-        .attr("x", d => xScale(d[currentXValue]))
-        .attr("y", d => yScale(d.Platzierung))
-        .style("width", "25")
-        .style("height", "25")
-        .on("mouseover", function (d) {
+
+    if(counter != 0) {
+        team_images
+            .transition().duration(2000).ease(d3.easeBounce)
+            .attr("x", d => xScale(d[currentXValue]) - 15)
+            .attr("y", d => yScale(d.Platzierung) - 15);
+    } else {
+        counter = 1;
+        var images = team_images.enter()
+            .append("g:image")
+            .attr("class", "bar")
+            .attr("xlink:href", function (d) {
+                return "./images/" + d.Verein + ".gif"
+            })
+            .attr("x", d => xScale(d[currentXValue])-15)
+            .attr("y", d => yScale(d.Platzierung)-15)
+            .style("width", "30")
+            .style("height","30");
+
+        images.on("mouseover", function (d) {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9)
@@ -167,17 +196,39 @@ function drawImages(data, xAxisValue) {
                 + currentXValue + `: ${d[currentXValue]}<br/>`
                 + `League Position: ${d.Platzierung}<br/>`
             )
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
+                .attr("x", ((d3.select(this).attr("x"))) + "px")
+                .attr("y", ((d3.select(this).attr("y"))) + "px");
+            d3.select(this)
+                .style("opacity", 0.3)
+                .transition()
+                .duration(200)
+                .attr("x", d => xScale(d[currentXValue])-100)
+                .attr("y", d => yScale(d.Platzierung)-100)
+                .style("width", "200")
+                .style("height","200");
         })
-        .on("mouseout", function (d) {
+        tooltip.on("mouseout", function (d) {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
+            images
+                .transition()
+                .duration(100)
+                .style("opacity", 1)
+                .attr("x", d => xScale(d[currentXValue])-15)
+                .attr("y", d => yScale(d.Platzierung)-15)
+                .style("width", "30")
+                .style("height","30");
         });
-
-
+    }
 };
+
+// var imgScaleFactor = {"Gesamtmarktwert":0.5,"Durchschnittsalter":2,"Fouls":0.1,"Umsatz":0.5};
+//
+// function imgScale(value, currentXValue){
+//     console.log( imgScaleFactor[currentXValue] )
+//     return imgScaleFactor[currentXValue] * value;
+// }
 
 // filters the data by the age and is needed for the slider functionality
 function update(h, xAxisValue) {
@@ -237,7 +288,7 @@ function drawGraph(xAxisValue) {
                 update(slider.value(), xAxisValue)
             }))
 
-// create scales for x and y direction
+        // create scales for x and y direction
         xScale = d3.scaleLinear()
             .range([0, width])
             .domain(valueDomain);
@@ -246,15 +297,14 @@ function drawGraph(xAxisValue) {
             .range([height, 0])
             .domain(successDomain);
 
-// create xAxis
+        // create xAxis
         xAxis = d3.axisBottom(xScale);
         g.append("g")  // create a group and add axis
             .attr("transform", "translate(0," + height + ")")
             .attr("id", "xAxis")
             .call(xAxis);
 
-
-// create yAxis
+        // create yAxis
         yAxis = d3.axisLeft(yScale);
         g.append("g")
             .attr("id", "yAxis")// create a group and add axis
@@ -263,27 +313,6 @@ function drawGraph(xAxisValue) {
         dataset = data;
         console.log("currentYear is: "+currentYear)
         update(currentYear, xAxisValue)
-
-        // text label for the x axis
-        g.append("text")
-            .attr("y", height + margin.bottom / 2)
-            .attr("x", width / 2)
-            .attr("dy", "1em")
-            .attr("font-family", "sans-serif")
-            .attr("id", "xAxisText")
-            .style("text-anchor", "middle")
-            .text(xAxisValue);
-
-// text label for the y axis
-        g.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - margin.left)
-            .attr("x", 0 - (height / 2))
-            .attr("dy", "1em")
-            .attr("font-family", "sans-serif")
-            .attr("id", "yAxisText")
-            .style("text-anchor", "middle")
-            .text("League Position");
 
     })
 }
