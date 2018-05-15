@@ -15,6 +15,28 @@ const svg = d3.select("body").append("svg")
     .attr("height", canvHeight)
     .style("border", "1px solid");
 
+svg.append("rect")
+    .attr("id", "yellowArea")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("fill", "yellow");
+
+svg.append("rect")
+    .attr("id", "greenArea")
+    .attr("x", "500")
+    .attr("y", "0")
+    .attr("width", "300")
+    .attr("height", "150")
+    .attr("fill", "#7CFC00");
+
+svg.append("rect")
+    .attr("id", "redArea")
+    .attr("x", "0")
+    .attr("y", "350")
+    .attr("width", "500")
+    .attr("height", "300")
+    .attr("fill", "#FF0000");
+
 // calc the width and height depending on margins.
 const margin = {top: 50, right: 80, bottom: 50, left: 60};
 const width = canvWidth - margin.left - margin.right;
@@ -136,6 +158,19 @@ d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
     });
 })
 
+// filters the data by the age and is needed for the slider functionality
+function update(h, xAxisValue) {
+    // update position and text of label according to slider scale
+    console.log("xAxisValue at update Function: " + xAxisValue)
+
+    //
+    // filter data set and redraw plot
+    var newData = dataset.filter(function (d) {
+        return d.Jahr == h;
+    })
+    currentYear = h;
+    drawImages(newData, xAxisValue);
+}
 
 // draws the images and is called by update(h, AxisValue)
 function drawImages(data, xAxisValue) {
@@ -179,19 +214,6 @@ function drawImages(data, xAxisValue) {
 
 };
 
-// filters the data by the age and is needed for the slider functionality
-function update(h, xAxisValue) {
-    // update position and text of label according to slider scale
-    console.log("xAxisValue at update Function: " + xAxisValue)
-
-    //
-    // filter data set and redraw plot
-    var newData = dataset.filter(function (d) {
-        return d.Jahr == h;
-    })
-    currentYear = h;
-    drawImages(newData, xAxisValue);
-}
 
 // It is needed for radiobutton selection
 function changeIt(xAxisValue) {
@@ -261,7 +283,7 @@ function drawGraph(xAxisValue) {
             .call(yAxis)
 
         dataset = data;
-        console.log("currentYear is: "+currentYear)
+        console.log("currentYear is: " + currentYear)
         update(currentYear, xAxisValue)
 
         // text label for the x axis
