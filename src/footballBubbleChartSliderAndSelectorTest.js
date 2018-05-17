@@ -4,11 +4,12 @@ var yScale;
 var xAxis;
 var yAxis;
 var currentYear;
-var counter = 0;
+var initialDraw = 1;
+var tooltip;
 
 
 // create svg canvas
-const canvHeight = 600, canvWidth = 800;
+const canvHeight = 740, canvWidth = 800;
 
 
 const svg = d3.select("body").append("svg")
@@ -21,11 +22,19 @@ const margin = {top: 50, right: 80, bottom: 50, left: 80};
 const width = canvWidth - margin.left - margin.right;
 const height = canvHeight - margin.top - margin.bottom;
 
+
 // create parent group and add left and top margin
 const g = svg.append("g")
     .attr("id", "chart-area")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var background = g
+    .append("image")
+    .attr("width",width)
+    .attr("height",height)
+    .attr("xlink:href", function (d) {
+        return "./images/footballBackground.png"
+    })
 
 var select = d3.select("#yProperty")
     .attr("y", height + margin.bottom / 2)
@@ -48,7 +57,6 @@ function onchange() {
         .append('p')
         .text(selectValue + ' is the last selected option.')
 };
-
 
 // text label for the y axis
 g.append("text")
@@ -81,10 +89,6 @@ function getValue(d) {
 };
 
 
-// Create tooltip
-const tooltip = d3.select("body").append("tooltip")
-    .attr("class", "tooltip");
-
 
 // Initialize View and Data
 d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", function(error, allGamesData) {
@@ -94,7 +98,7 @@ d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", functi
             console.log(allGamesData[0]);
 
             var valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert))];
-            var successDomain = [d3.max(data, d => Number(d.Platzierung))+1, 1];
+            var successDomain = [d3.max(data, d => Number(d.Platzierung))+1, 0];
 
             // create scales for x and y direction
             xScale = d3.scaleLinear()
@@ -160,22 +164,14 @@ d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", functi
 // draws the images and is called by update(h, AxisValue)
 function drawImages(data, xAxisValue) {
 
-
-    // d3.selectAll("image").remove()
-
     var currentXValue = xAxisValue;
     console.log("currentXValue: " + currentXValue)
-    var team_images = g.selectAll("image")
+    var team_images = g.selectAll("image").filter(".bar")
         .data(data)
 
 
-    if(counter != 0) {
-        team_images
-            .transition().duration(2000).ease(d3.easeBounce)
-            .attr("x", d => xScale(d[currentXValue]) - 15)
-            .attr("y", d => yScale(d.Platzierung) - 15);
-    } else {
-        counter = 1;
+    if(initialDraw) {
+        initialDraw = 0;
         var images = team_images.enter()
             .append("g:image")
             .attr("class", "bar")
@@ -186,42 +182,72 @@ function drawImages(data, xAxisValue) {
             .attr("y", d => yScale(d.Platzierung)-15)
             .style("width", "30")
             .style("height","30");
-
-        images.on("mouseover", function (d) {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9)
-                .style("visibility", "visible");
-            tooltip.html(`${d["Verein"]} <br/>`
-                + currentXValue + `: ${d[currentXValue]}<br/>`
-                + `League Position: ${d.Platzierung}<br/>`
-            )
-                .attr("x", ((d3.select(this).attr("x"))) + "px")
-                .attr("y", ((d3.select(this).attr("y"))) + "px");
-            d3.select(this)
-                .style("opacity", 0.3)
-                .transition()
-                .duration(200)
-                .attr("x", d => xScale(d[currentXValue])-100)
-                .attr("y", d => yScale(d.Platzierung)-100)
-                .style("width", "200")
-                .style("height","200");
-        })
-        tooltip.on("mouseout", function (d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
-            images
-                .transition()
-                .duration(100)
-                .style("opacity", 1)
-                .attr("x", d => xScale(d[currentXValue])-15)
-                .attr("y", d => yScale(d.Platzierung)-15)
-                .style("width", "30")
-                .style("height","30");
-        });
+        addTooltip(images,currentXValue);
+    } else {
+        team_images
+            .transition().duration(2000).ease(d3.easeBounce)
+            .attr("x", d => xScale(d[currentXValue]) - 15)
+            .attr("y", d => yScale(d.Platzierung) - 15);
     }
 };
+
+function addTooltip(images, currentXValue){
+    tooltip = g.append("circle")
+        .attr("class","tooltip");
+    var clubInfo = g.append("text")
+        .attr("class","tooltipTxt");
+
+    images.on("mouseover", function (d) {
+        tooltip
+            .attr("cx", xScale(d[currentXValue]))
+            .attr("cy", yScale(d.Platzierung))
+            .transition()
+            .duration(100)
+            .style("opacity",0.9)
+            .style("visibility", "visible");
+
+        // d["Verein"]+ `<br/>`
+        // + `Total market value: ${d.Gesamtmarktwert}<br/>`
+        // + `League Position: ${d.Platzierung}<br/>`
+        // + `Number of Players: ${d.Kader}<br/>`;
+        clubInfo
+            .attr("transform", "translate("+xScale(d[currentXValue])+","+yScale(d.Platzierung)+")")
+            .attr("font-size","1em")
+            .attr("color","black")
+            .attr("visibility","visible")
+            .attr("text-anchor","middle")
+            .attr("width",20)
+            .html("<a>ojojoi</a><a>osjfijosj</a>")
+
+        var img = d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("x", xScale(d[currentXValue])-15)
+            .attr("y", yScale(d.Platzierung)-80);
+        this.parentNode.appendChild(this);
+    })
+    tooltip.on("mouseout", function (d) {
+        tooltip
+            .transition()
+            .duration(100)
+            .style("opacity", 0)
+            .transition()
+            .attr("cx", -100)
+            .attr("cy", -100);
+
+        images
+            .transition()
+            .duration(800).ease(d3.easeBounce)
+            .style("opacity", 1)
+            .attr("x", d => xScale(d[currentXValue])-15)
+            .attr("y", d => yScale(d.Platzierung)-15)
+            .style("width", "30")
+            .style("height","30");
+
+        clubInfo
+            .attr("visibility","hidden")
+    });
+}
 
 // var imgScaleFactor = {"Gesamtmarktwert":0.5,"Durchschnittsalter":2,"Fouls":0.1,"Umsatz":0.5};
 //
@@ -262,7 +288,7 @@ function changeIt(xAxisValue) {
 function drawGraph(xAxisValue) {
 
     d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
-        var successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, d3.min(data, d => Number(d.Platzierung))];
+        var successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, 0];
         if (xAxisValue == "Gesamtmarktwert") {
 
             var valueDomain = [d3.max(data, d => Number(d[xAxisValue])), 22];
@@ -316,3 +342,4 @@ function drawGraph(xAxisValue) {
 
     })
 }
+
