@@ -202,34 +202,33 @@ function addTooltip(images, currentXValue){
             .attr("cx", xScale(d[currentXValue]))
             .attr("cy", yScale(d.Platzierung))
             .transition()
-            .duration(100)
-            .style("opacity",0.9)
+            .style("opacity",0.8)
             .style("visibility", "visible");
 
-        // d["Verein"]+ `<br/>`
-        // + `Total market value: ${d.Gesamtmarktwert}<br/>`
-        // + `League Position: ${d.Platzierung}<br/>`
-        // + `Number of Players: ${d.Kader}<br/>`;
         clubInfo
             .attr("transform", "translate("+xScale(d[currentXValue])+","+yScale(d.Platzierung)+")")
             .attr("font-size","1em")
-            .attr("color","black")
+            .attr("fill","white")
             .attr("visibility","visible")
             .attr("text-anchor","middle")
-            .attr("width",20)
-            .html("<a>ojojoi</a><a>osjfijosj</a>")
+            .attr("x","0").attr("y","-20").text(d["Verein"])
+            .append("tspan").attr("x","0").attr("y","0").html(`Total market value: ${d.Gesamtmarktwert}`)
+            .append("tspan").attr("x","0").attr("y","20").html(`League Position: ${d.Platzierung}`)
+            .append("tspan").attr("x","0").attr("y","40").html(`Number of Players: ${d.Kader}`)
 
-        var img = d3.select(this)
+        d3.select(this)
             .transition()
             .duration(200)
             .attr("x", xScale(d[currentXValue])-15)
             .attr("y", yScale(d.Platzierung)-80);
+
+        d3.selectAll("circle.tooltip").nodes().map(img => img.parentNode.appendChild(img))
+        d3.select("text.tooltipTxt").nodes().map(img => img.parentNode.appendChild(img))
         this.parentNode.appendChild(this);
     })
     tooltip.on("mouseout", function (d) {
         tooltip
             .transition()
-            .duration(100)
             .style("opacity", 0)
             .transition()
             .attr("cx", -100)
@@ -243,6 +242,8 @@ function addTooltip(images, currentXValue){
             .attr("y", d => yScale(d.Platzierung)-15)
             .style("width", "30")
             .style("height","30");
+
+        d3.selectAll("image.bar").nodes().map(img => img.closest("g").appendChild(img))
 
         clubInfo
             .attr("visibility","hidden")
@@ -342,4 +343,3 @@ function drawGraph(xAxisValue) {
 
     })
 }
-
