@@ -213,6 +213,8 @@ function addTooltip(images, currentXValue){
 
 // filters the data by the age and is needed for the slider functionality
 function update(h, xAxisValue) {
+    d3.selectAll(".tooltip").remove();
+    d3.selectAll(".tooltipTxt").remove();
     // filter data set and redraw plot
     var newData = dataset.filter(function (d) {
         return d.Jahr == h;
@@ -229,7 +231,6 @@ function changeIt(xAxisValue) {
     d3.selectAll(".tooltip").remove();
     d3.selectAll(".tooltipTxt").remove();
     d3.selectAll("#yAxis").remove();
-    d3.selectAll(".tooltipTxt").remove();
     drawGraph(xAxisValue)
 }
 
