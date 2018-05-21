@@ -3,28 +3,27 @@ var xScale;
 var yScale;
 var xAxis;
 var yAxis;
-var currentYear;
 var initialDraw = 1;
-var tooltip;
+var tooltip = 1;
+var filterYear = 2015;
+var valueDomain;
+var successDomain;
 
+// canvas dimensions
+const canvHeight = 1000, canvWidth = 1062;
+const margin = {top: 150, right: 180, bottom: 150, left: 180};
+const width = canvWidth - margin.left - margin.right;
+const height = canvHeight - margin.top - margin.bottom;
+var yData = ["Gesamtmarktwert", "Durchschnittsalter", "Fouls", "Umsatz"];
 
-// create svg canvas
-const canvHeight = 740, canvWidth = 800;
-
-
-const svg = d3.select("body").append("svg")
+const chart1 = d3.select("body").append("svg")
+    .attr("class", "chart1")
     .attr("width", canvWidth)
     .attr("height", canvHeight);
     // .style("border", "1px solid");
 
-// calc the width and height depending on margins.
-const margin = {top: 50, right: 80, bottom: 50, left: 80};
-const width = canvWidth - margin.left - margin.right;
-const height = canvHeight - margin.top - margin.bottom;
-
-
 // create parent group and add left and top margin
-const g = svg.append("g")
+const g = chart1.append("g")
     .attr("id", "chart-area")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -32,36 +31,14 @@ var background = g
     .append("image")
     .attr("width",width)
     .attr("height",height)
+    .attr("visibility","visible")
     .attr("xlink:href", function (d) {
         return "./images/footballBackground.png"
     })
 
-var select = d3.select("#yProperty")
-    .attr("y", height + margin.bottom / 2)
-    .attr("x", width / 2)
-    .attr("dy", "1em")
-    .attr('class','select')
-    .on('change',onchange)
-console.log(select);
-
-var data = ["Budget", "anzl. Mitglieder", "anzl. gelbe Karten"];
-var options = select
-    .selectAll('option')
-    .data(data).enter()
-    .append('option')
-    .text(function (d) { return d; });
-
-function onchange() {
-    selectValue = d3.select('select').property('value')
-    d3.select('body')
-        .append('p')
-        .text(selectValue + ' is the last selected option.')
-};
-
-// text label for the y axis
-g.append("text")
+var yLabel = g.append("text")
     .attr("transform", "rotate(-90)")
-    .attr("y", 20 - margin.left)
+    .attr("y", 100-  margin.left)
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .attr("font-family", "sans-serif")
@@ -69,9 +46,7 @@ g.append("text")
     .style("text-anchor", "middle")
     .text("League Position");
 
-
-// chart title
-svg.append("text")
+chart1.append("text")
     .attr("y", 0)
     .attr("x", margin.left)
     .attr("dy", "1.5em")
@@ -80,82 +55,66 @@ svg.append("text")
     .style("text-anchor", "left")
     .text("Football - Which team is really efficient?");
 
-// external Slider Library - see slider.js for code and source URL
 
+var select = d3.select('body')
+    .append('select')
+    .attr('class','select')
+    .on('change',onchange)
+
+var options = select
+    .selectAll('option')
+    .data(yData).enter()
+    .append('option')
+    .text(function (d) { return d; });
+
+function onchange() {
+    selectValue = d3.select('select').property('value')
+    changeIt(selectValue);
+};
 
 function getValue(d) {
     var parseNum = d3.format(".0g");
     d3.select("#slideValue").text("Slider value " + parseNum(d.value()))
 };
 
-
-
 // Initialize View and Data
-d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", function(error, allGamesData) {
-    d3.csv("./data/Bundesliga All Players 2007-2018 (statbunker.com).csv", function(error, allPlayersData) {
-        d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
+d3.csv("./data/Bundesliga All Players 2007-2018 (statbunker.com).csv", function(error, allPlayersData) {
+    d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
 
-            console.log(allGamesData[0]);
+        valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert))+20];
+        successDomain = [d3.max(data, d => Number(d.Platzierung))+1, 0];
 
-            var valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert))];
-            var successDomain = [d3.max(data, d => Number(d.Platzierung))+1, 0];
+        // create scales for x and y direction
+        xScale = d3.scaleLinear()
+            .range([0, width])
+            .domain(valueDomain);
 
-            // create scales for x and y direction
-            xScale = d3.scaleLinear()
-                .range([0, width])
-                .domain(valueDomain);
+        yScale = d3.scaleLinear()
+            .range([height, 0])
+            .domain(successDomain);
 
-            yScale = d3.scaleLinear()
-                .range([height, 0])
-                .domain(successDomain);
+        // create xAxis
+        xAxis = d3.axisBottom(xScale);
+        g.append("g")  // create a group and add axis
+            .attr("transform", "translate(0," + height + ")")
+            .attr("id", "xAxis")
+            .call(xAxis);
 
-            // create xAxis
-            xAxis = d3.axisBottom(xScale);
-            g.append("g")  // create a group and add axis
-                .attr("transform", "translate(0," + height + ")")
-                .attr("id", "xAxis")
-                .call(xAxis);
+        // create yAxis
+        yAxis = d3.axisLeft(yScale).tickValues([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
+        g.append("g")
+            .attr("id", "yAxis")// create a group and add axis
+            .call(yAxis)
 
+        const slider = sliderFactory();
+        let slideHolder = d3.select('body').append("sliderBox")
+            .call(slider.ticks(1).scale(true).value(2015).range([2013, 2017]).dragHandler(function (d) {
+                getValue(d);
+                update(slider.value(), "Gesamtmarktwert")
+            }));
 
-            // create yAxis
-            yAxis = d3.axisLeft(yScale);
-            g.append("g")
-                .attr("id", "yAxis")// create a group and add axis
-                .call(yAxis)
-
-            const slider = sliderFactory();
-            let slideHolder = d3.select('body')
-                .call(slider.ticks(1).scale(true).value(2015).range([2013, 2017]).dragHandler(function (d) {
-                    getValue(d);
-                    update(slider.value(), "Gesamtmarktwert")
-                }))
-
-            dataset = data;
-            update(2015, "Gesamtmarktwert")
-
-            d3.selectAll(".radioB").on("click", function () {
-                if (this.value == "Gesamtmarktwert") {
-                    console.log("Gesamtmarktwert selected")
-
-                    changeIt("Gesamtmarktwert")
-                    // Determine how to size the slices.
-                } else if (this.value == "Durchschnittsalter") {
-                    console.log("Durchschnittsalter selected")
-
-                    changeIt("Durchschnittsalter")
-                }
-                else if (this.value == "Fouls") {
-                    console.log("Fouls selected")
-
-                    changeIt("Fouls")
-                }
-                else if (this.value == "Umsatz") {
-                    console.log("Umsatz selected")
-
-                    changeIt("Umsatz")
-                }
-            });
-        });
+        dataset = data;
+        update(filterYear, "Gesamtmarktwert")
     });
 });
 
@@ -165,14 +124,12 @@ d3.csv("./data/Bundesliga All Games 1993-2018 (football-data.co.uk).csv", functi
 function drawImages(data, xAxisValue) {
 
     var currentXValue = xAxisValue;
-    console.log("currentXValue: " + currentXValue)
     var team_images = g.selectAll("image").filter(".bar")
         .data(data)
 
-
     if(initialDraw) {
         initialDraw = 0;
-        var images = team_images.enter()
+        team_images = team_images.enter()
             .append("g:image")
             .attr("class", "bar")
             .attr("xlink:href", function (d) {
@@ -181,23 +138,27 @@ function drawImages(data, xAxisValue) {
             .attr("x", d => xScale(d[currentXValue])-15)
             .attr("y", d => yScale(d.Platzierung)-15)
             .style("width", "30")
-            .style("height","30");
-        addTooltip(images,currentXValue);
+            .style("height","30")
+        addTooltip(team_images,currentXValue);
     } else {
         team_images
-            .transition().duration(2000).ease(d3.easeBounce)
+            .transition().duration(2000).ease(d3.easeCubic)
             .attr("x", d => xScale(d[currentXValue]) - 15)
             .attr("y", d => yScale(d.Platzierung) - 15);
+        addTooltip(team_images,currentXValue);
     }
 };
 
 function addTooltip(images, currentXValue){
     tooltip = g.append("circle")
-        .attr("class","tooltip");
+        .attr("class","tooltip")
     var clubInfo = g.append("text")
         .attr("class","tooltipTxt");
+    var allNodes;
 
     images.on("mouseover", function (d) {
+
+        console.log(currentXValue)
         tooltip
             .attr("cx", xScale(d[currentXValue]))
             .attr("cy", yScale(d.Platzierung))
@@ -223,17 +184,15 @@ function addTooltip(images, currentXValue){
             .attr("y", yScale(d.Platzierung)-80);
 
         d3.selectAll("circle.tooltip").nodes().map(img => img.parentNode.appendChild(img))
+        console.log(d3.select("text.tooltipTxt").nodes());
         d3.select("text.tooltipTxt").nodes().map(img => img.parentNode.appendChild(img))
+        allNodes = d3.selectAll("image.bar").nodes();
         this.parentNode.appendChild(this);
     })
     tooltip.on("mouseout", function (d) {
         tooltip
             .transition()
             .style("opacity", 0)
-            .transition()
-            .attr("cx", -100)
-            .attr("cy", -100);
-
         images
             .transition()
             .duration(800).ease(d3.easeBounce)
@@ -243,74 +202,67 @@ function addTooltip(images, currentXValue){
             .style("width", "30")
             .style("height","30");
 
-        d3.selectAll("image.bar").nodes().map(img => img.closest("g").appendChild(img))
+        allNodes
+            .map(img => img.closest("g").appendChild(img))
 
         clubInfo
             .attr("visibility","hidden")
     });
 }
 
-// var imgScaleFactor = {"Gesamtmarktwert":0.5,"Durchschnittsalter":2,"Fouls":0.1,"Umsatz":0.5};
-//
-// function imgScale(value, currentXValue){
-//     console.log( imgScaleFactor[currentXValue] )
-//     return imgScaleFactor[currentXValue] * value;
-// }
 
 // filters the data by the age and is needed for the slider functionality
 function update(h, xAxisValue) {
-    // update position and text of label according to slider scale
-    console.log("xAxisValue at update Function: " + xAxisValue)
-
-    //
     // filter data set and redraw plot
     var newData = dataset.filter(function (d) {
         return d.Jahr == h;
     })
-    currentYear = h;
+    filterYear = h;
     drawImages(newData, xAxisValue);
 }
 
 // It is needed for radiobutton selection
 function changeIt(xAxisValue) {
-
-
-    d3.selectAll("#xAxis").remove()
-    d3.selectAll("#xAxisText").remove()
-
-    console.log(" changeIt executed")
-
+    d3.selectAll("sliderbox").remove();
+    d3.selectAll("#xAxis").remove();
+    d3.selectAll("#xAxisText").remove();
+    d3.selectAll(".tooltip").remove();
+    d3.selectAll(".tooltipTxt").remove();
+    d3.selectAll("#yAxis").remove();
+    d3.selectAll(".tooltipTxt").remove();
     drawGraph(xAxisValue)
-
-
 }
 
 // redraws the xAxis and the most of the graph. It is called by changeIt(xAxisValue) function (radiobutton)
 function drawGraph(xAxisValue) {
 
-    d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
-        var successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, 0];
+        successDomain = [d3.max(dataset, d => Number(d.Platzierung)) + 1, 0];
         if (xAxisValue == "Gesamtmarktwert") {
-
-            var valueDomain = [d3.max(data, d => Number(d[xAxisValue])), 22];
-
+            background.attr("visibility","visible");
+            valueDomain = [0,d3.max(dataset, d => Number(d[xAxisValue]))+20];
         }
         if (xAxisValue == "Durchschnittsalter") {
-            var valueDomain = [d3.max(data, d => Number(d[xAxisValue])), 22];
+            background.attr("visibility","hidden");
+            var median = d3.median(dataset, d=>Number(d[xAxisValue]));
+            var max = d3.max(dataset, d => Number(d[xAxisValue]));
+            var min = Math.round( median - (max - median) );
+            valueDomain = [min,max];
         }
         if (xAxisValue == "Fouls") {
-            var valueDomain = [d3.max(data, d => Number(d[xAxisValue])), 350];
+            background.attr("visibility","visible");
+            valueDomain = [d3.max(dataset, d => Number(d[xAxisValue]))+20, -30];
         }
         if (xAxisValue == "Umsatz") {
-            var valueDomain = [d3.max(data, d => Number(d[xAxisValue])), 30];
+            background.attr("visibility","visible");
+            valueDomain = [-30,d3.max(dataset, d => Number(d[xAxisValue]))];
         }
 
 
         d3.selectAll("#sliderSVG").remove()
 
         const slider = sliderFactory();
-        let slideHolder = d3.select('body')
-            .call(slider.ticks(1).scale(true).value(currentYear).range([2013, 2017]).dragHandler(function (d) {
+        let slideHolder = d3.select('body').append("sliderBox")
+            .call(slider.ticks(1).scale(true).value(filterYear).range([2013, 2017]).dragHandler(function (d) {
                 getValue(d);
                 update(slider.value(), xAxisValue)
             }))
@@ -332,14 +284,10 @@ function drawGraph(xAxisValue) {
             .call(xAxis);
 
         // create yAxis
-        yAxis = d3.axisLeft(yScale);
+        yAxis = d3.axisLeft(yScale).tickValues([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
         g.append("g")
             .attr("id", "yAxis")// create a group and add axis
             .call(yAxis)
 
-        dataset = data;
-        console.log("currentYear is: "+currentYear)
-        update(currentYear, xAxisValue)
-
-    })
+        update(filterYear, xAxisValue)
 }

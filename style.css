@@ -3,7 +3,7 @@
 }
 
 circle.tooltip {
-    r:100;
+    r:120;
     fill:grey;
     visibility:hidden;
 }
@@ -13,4 +13,29 @@ circle.tooltip {
 }
 .row{
     text-align: center;
+}
+
+.select{
+    position:absolute;
+    top:900px;
+    left:450px;
+}
+
+#yAxis .domain {
+    display:none;
+}
+
+#yAxis .tick line {
+    display:none;
+}
+
+#yAxis .tick text{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+sliderBox{
+    position: absolute;
+    left:220px;
+    top:980px;
 }
