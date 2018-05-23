@@ -108,7 +108,7 @@ d3.csv("./data/Bundesliga All Players 2007-2018 (statbunker.com).csv", function(
 
         const slider = sliderFactory();
         let slideHolder = d3.select('body').append("sliderBox")
-            .call(slider.ticks(1).scale(true).value(2015).range([2013, 2017]).dragHandler(function (d) {
+            .call(slider.ticks(1).scale(true).value(2015).range([2013, 2018]).dragHandler(function (d) {
                 getValue(d);
                 update(slider.value(), "Gesamtmarktwert")
             }));
@@ -263,7 +263,7 @@ function drawGraph(xAxisValue) {
 
         const slider = sliderFactory();
         let slideHolder = d3.select('body').append("sliderBox")
-            .call(slider.ticks(1).scale(true).value(filterYear).range([2013, 2017]).dragHandler(function (d) {
+            .call(slider.ticks(1).scale(true).value(filterYear).range([2013, 2018]).dragHandler(function (d) {
                 getValue(d);
                 update(slider.value(), xAxisValue)
             }))
