@@ -18,7 +18,7 @@ const canvHeight = 1000, canvWidth = 1062;
 const margin = {top: 150, right: 180, bottom: 150, left: 180};
 const width = canvWidth - margin.left - margin.right;
 const height = canvHeight - margin.top - margin.bottom;
-var yData = ["Gesamtmarktwert", "Durchschnittsalter", "Fouls", "Umsatz"];
+var yData = ["Gesamtmarktwert", "Durchschnittsalter", "Fouls", "Umsatz","Running"];
 
 const chart1 = d3.select("body").append("svg")
     .attr("class", "chart1")
@@ -319,6 +319,10 @@ function drawGraph(xAxisValue) {
     if (xAxisValue == "Umsatz") {
         background.attr("visibility", "visible");
         valueDomain = [-30, d3.max(dataset, d => Number(d[xAxisValue]))];
+    }
+    if (xAxisValue == "Running") {
+        background.attr("visibility", "visible");
+        valueDomain = [3750, d3.max(dataset, d => Number(d[xAxisValue]) + 30)];
     }
 
 
