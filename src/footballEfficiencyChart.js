@@ -139,7 +139,7 @@ function drawImages(data, xAxisValue) {
     var currentXValue = xAxisValue;
     var team_images = g.selectAll("image").filter(".bar");
 
-    if (xAxisValue == "Fouls" && data[0].Fouls == "") {
+    if ((xAxisValue == "Fouls" && data[0].Fouls == "") || (xAxisValue == "Running" && data[0].Running == "")) {
         team_images.attr("visibility", "hidden");
     } else {
         team_images.attr("visibility", "visible");
