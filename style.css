@@ -17,7 +17,7 @@ circle.tooltip {
 
 .select{
     position:absolute;
-    top:900px;
+    top:950px;
     left:450px;
 }
 
@@ -48,4 +48,13 @@ svg {
     fill: none;
     stroke: #000;
     stroke-width: 2px;
+}
+
+.chart1{
+    padding-top:50px;
+}
+
+text {
+    font-weight: bold;
+    font-family: Helvetica;
 }

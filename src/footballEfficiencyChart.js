@@ -11,7 +11,7 @@ var successDomain;
 var placementValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
 //The data for our line
-var lineData ={};
+var lineData = {};
 
 // canvas dimensions
 const canvHeight = 1000, canvWidth = 1062;
@@ -94,44 +94,42 @@ function getValue(d) {
 };
 
 // Initialize View and Data
-d3.csv("./data/Bundesliga All Players 2007-2018 (statbunker.com).csv", function (error, allPlayersData) {
-    d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
+d3.csv("./data/bundesligaDataWithFouls.csv", function (error, data) {
 
-        valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert)) + 20];
-        successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, 0];
+    valueDomain = [0, d3.max(data, d => Number(d.Gesamtmarktwert)) + 20];
+    successDomain = [d3.max(data, d => Number(d.Platzierung)) + 1, 0];
 
-        // create scales for x and y direction
-        xScale = d3.scaleLinear()
-            .range([0, width])
-            .domain(valueDomain);
+    // create scales for x and y direction
+    xScale = d3.scaleLinear()
+        .range([0, width])
+        .domain(valueDomain);
 
-        yScale = d3.scaleLinear()
-            .range([height, 0])
-            .domain(successDomain);
+    yScale = d3.scaleLinear()
+        .range([height, 0])
+        .domain(successDomain);
 
-        // create xAxis
-        xAxis = d3.axisBottom(xScale);
-        g.append("g")  // create a group and add axis
-            .attr("transform", "translate(0," + height + ")")
-            .attr("id", "xAxis")
-            .call(xAxis);
+    // create xAxis
+    xAxis = d3.axisBottom(xScale);
+    g.append("g")  // create a group and add axis
+        .attr("transform", "translate(0," + height + ")")
+        .attr("id", "xAxis")
+        .call(xAxis);
 
-        // create yAxis
-        yAxis = d3.axisLeft(yScale).tickValues(placementValues);
-        g.append("g")
-            .attr("id", "yAxis")// create a group and add axis
-            .call(yAxis)
+    // create yAxis
+    yAxis = d3.axisLeft(yScale).tickValues(placementValues);
+    g.append("g")
+        .attr("id", "yAxis")// create a group and add axis
+        .call(yAxis)
 
-        const slider = sliderFactory();
-        let slideHolder = d3.select('body').append("sliderBox")
-            .call(slider.ticks(1).scale(true).value(2015).range([2013, 2018]).dragHandler(function (d) {
-                getValue(d);
-                update(slider.value(), "Gesamtmarktwert")
-            }));
+    const slider = sliderFactory();
+    let slideHolder = d3.select('body').append("sliderBox")
+        .call(slider.ticks(1).scale(true).value(2015).range([2013, 2018]).dragHandler(function (d) {
+            getValue(d);
+            update(slider.value(), "Gesamtmarktwert")
+        }));
 
-        dataset = data;
-        update(filterYear, "Gesamtmarktwert")
-    });
+    dataset = data;
+    update(filterYear, "Gesamtmarktwert")
 });
 
 
@@ -142,9 +140,9 @@ function drawImages(data, xAxisValue) {
     var team_images = g.selectAll("image").filter(".bar");
 
     if (xAxisValue == "Fouls" && data[0].Fouls == "") {
-        team_images.attr("visibility","hidden");
-    }else{
-        team_images.attr("visibility","visible");
+        team_images.attr("visibility", "hidden");
+    } else {
+        team_images.attr("visibility", "visible");
         if (initialDraw) {
             initialDraw = 0;
             team_images = team_images
@@ -172,8 +170,8 @@ function drawImages(data, xAxisValue) {
             // update existing teams
             team_images
                 .data(data, function (d) {
-                    var xy = {"x":xScale(d[currentXValue]),"y":yScale(d.Platzierung)};
-                    updateLineData(xy,d.Verein);
+                    var xy = {"x": xScale(d[currentXValue]), "y": yScale(d.Platzierung)};
+                    updateLineData(xy, d.Verein);
                     return d.Verein
                 })
                 .attr("xlink:href", function (d) {
@@ -213,9 +211,9 @@ function addTooltip(images, currentXValue) {
     var allNodes;
 
     images.on("mouseover", function (d) {
-        if(!_.isEmpty(lineData) && lineData.length != 0){
+        if (!_.isEmpty(lineData) && lineData.length != 0) {
             var lineGraph = g.append("path")
-                .attr("class","path")
+                .attr("class", "path")
                 .attr("d", lineFunction(lineData[d.Verein]))
                 .attr("stroke", "blue")
                 .attr("stroke-width", 2)
@@ -236,7 +234,7 @@ function addTooltip(images, currentXValue) {
             .attr("visibility", "visible")
             .attr("text-anchor", "middle")
             .attr("x", "0").attr("y", "-20").text(d["Verein"])
-            .append("tspan").attr("x", "0").attr("y", "20").html(currentXValue+": "+d[currentXValue])
+            .append("tspan").attr("x", "0").attr("y", "20").html(currentXValue + ": " + d[currentXValue])
             .append("tspan").attr("x", "0").attr("y", "40").html(`Number of Players: ${d.Kader}`)
 
         d3.select(this)
@@ -359,11 +357,10 @@ function drawGraph(xAxisValue) {
 }
 
 function updateLineData(xy, verein) {
-        if(lineData[verein]!= undefined){
-            lineData[verein].push(xy);
-        }
-        else
-        {
-            lineData[verein] = [xy];
-        }
+    if (lineData[verein] != undefined) {
+        lineData[verein].push(xy);
+    }
+    else {
+        lineData[verein] = [xy];
+    }
 }
