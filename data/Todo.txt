@@ -1,0 +1,8 @@
+Martin:
+Anzeige für Spieler: Total Einsätze, Fouls, Marktwert des Spielers, Falls wir finden- gelaufene Kilometer pro Spieler
+
+
+Joel:
+Tooltip 
+Bubblesize für Wappen
+
